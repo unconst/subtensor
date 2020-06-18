@@ -135,10 +135,10 @@ package = 'frame-system'
 tag = 'v2.0.0-rc3'
 version = '2.0.0-rc3'
 
-[dependencies.template]
+[dependencies.bittensor]
 default-features = false
-package = 'pallet-template'
-path = '../pallets/template'
+package = 'bittensor'
+path = '../pallets/bittensor'
 version = '2.0.0-rc3'
 
 [dependencies.timestamp]
@@ -198,5 +198,5 @@ std = [
     'system/std',
     'timestamp/std',
     'transaction-payment/std',
-    'template/std',
+    'bittensor/std',
 ]
