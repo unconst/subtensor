@@ -1,0 +1,21 @@
+<head>
+  <style> body { margin: 0; } </style>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <script src="//unpkg.com/3d-force-graph"></script>
+  <!--<script src="../../dist/3d-force-graph.js"></script>-->
+</head>
+
+<body>
+  <div id="3d-graph"></div>
+
+  <script>
+	  const Graph = ForceGraph3D()
+      		(document.getElementById('3d-graph'))
+		.linkCurvature('curvature')
+       		.linkCurveRotation('rotation')
+		.backgroundColor("#000000")
+        	.linkDirectionalParticles(2)
+        	.jsonUrl('graph.json') 
+  </script>
+</body>

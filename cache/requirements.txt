@@ -1,0 +1,7 @@
+loguru
+grpcio
+grpcio-tools
+numpy
+pytest
+google-api-python-client
+timeloop
