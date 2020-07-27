@@ -1,6 +1,6 @@
-from metagraph import metagraph_pb2_grpc as proto_grpc
-from metagraph import metagraph_pb2 as proto_pb2
-from server import Metagraph
+from opentensor import opentensor_pb2_grpc as opentensor_grpc
+from opentensor import opentensor_pb2
+from metagraph import Metagraph
 
 import argparse
 import grpc

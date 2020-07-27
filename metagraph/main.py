@@ -1,5 +1,5 @@
 from opentensor import opentensor_pb2_grpc as opentensor_grpc
-from server import Proxy
+from metagraph import Metagraph
 
 import argparse
 import grpc
@@ -15,25 +15,36 @@ from datetime import timedelta
 from loguru import logger
 from timeloop import Timeloop
 
+GOSSIP_STEP = 10
+CLEAN_STEP = 10
+TTL = 60*60
+
 def set_timed_loops(tl, config, server):
 
-    @tl.job(interval=timedelta(seconds=config.wait_refresh))
-    def refresh():
-        server.refresh()
+    @tl.job(interval=timedelta(seconds=GOSSIP_STEP))
+    def gossip():
+        server.do_gossip()
 
+    @tl.job(interval=timedelta(seconds=CLEAN_STEP))
+    def gossip():
+        server.do_clean(TTL)
 
 def main(config):
+    
+    # Build backend server.
     address = "[::]:" + str(config.port)
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    proxy_server = Proxy()
-    opentensor_grpc.add_MetagraphProxyServicer_to_server(proxy_server, server)
+    metagraph = Metagraph()
+    opentensor_grpc.add_MetagraphServicer_to_server(metagraph, server)
     server.add_insecure_port(address)
     
+    # Start timers.
     tl = Timeloop()
-    set_timed_loops(tl, config, proxy_server)
+    set_timed_loops(tl, config, metagraph)
     tl.start(block=False)
-    logger.info('started timers')
+    logger.info('started timers ...')
  
+    # Build frontend.
     host_name = "localhost"
     httpd = HTTPServer((host_name, config.port+1), CGIHTTPRequestHandler)
     def http_thread_run():
@@ -42,6 +53,7 @@ def main(config):
     http_thread.setDaemon(True)
     http_thread.start()
     
+    # Start metagraph.
     server.start()
     logger.info('metagraph server {} ...', address)
     server.wait_for_termination()
@@ -51,20 +63,10 @@ def main(config):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--wait_refresh',
-        default=10,
-        type=int,
-        help="Time between stale entry cleaning. Default=20")
-    parser.add_argument(
         '--port',
         default=8899,
         type=int,
         help="Port to serve on. Default=12931")
-    parser.add_argument(
-        '--time_to_live',
-        default=20,
-        type=int,
-        help="Time that stale entries remain in metagraph. Default=20")
     params = parser.parse_args()
     main(params)
 
